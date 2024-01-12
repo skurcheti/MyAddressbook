@@ -1,0 +1,44 @@
+---
+- name: install tomcat server
+  hosts: all
+  become: true
+
+  tasks:
+  - name: Install OpenJDK
+    apt:
+      name: openjdk-11-jre-headless
+
+  - name: download tomcat server packages
+    get_url:
+      url: https://mirrors.estointernet.in/apache/tomcat/tomcat-9/v9.0.62/bin/apache-tomcat-9.0.62.tar.gz
+      dest: /usr/local
+
+  - name: extract tomcat packages
+    unarchive:
+      src: /usr/local/apache-tomcat-9.0.62.tar.gz
+      dest: /usr/local/
+      remote_src: yes
+
+  - name: updating tomcat-users.xml file
+    become: yes
+    become_user: root
+    lineinfile:
+      path: /usr/local/apache-tomcat-9.0.62/conf/tomcat-users.xml
+      insertbefore: '</tomcat-users>'
+      line: <user username="robot" password="hitu18feb" roles="manager-script"/>
+      state: present
+
+  - name: updating context.xml file
+    become: yes
+    become_user: root
+    lineinfile:
+      path: /usr/local/apache-tomcat-9.0.62/webapps/manager/META-INF/context.xml
+      # The String to Search
+      regexp: allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" />
+      # The String to Replace
+      line: allow="\d+\.\d+\.\d+\.\d+" />
+      state: present
+      backup: yes
+      
+  - name: start tomcat services
+    shell: nohup /usr/local/apache-tomcat-9.0.62/bin/startup.sh

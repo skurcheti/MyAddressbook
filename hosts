@@ -43,5 +43,3 @@
 ## db-[99:101]-node.example.com
 [tomcat]
 tomcatserver.my.lab
-[jenkins]
-jenkinsmaster.my.lab
